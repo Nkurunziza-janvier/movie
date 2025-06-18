@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JanvierMovieX - Premium Streaming</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-container">
+            <div class="logo-container">
+                <h1 class="logo">Janvier<span>MovieX</span></h1>
+            </div>
+            <div class="menu-container">
+                <ul class="menu-list">
+                    <li class="menu-list-item active">Home</li>
+                    <li class="menu-list-item">Movies</li>
+                    <li class="menu-list-item">TV Shows</li>
+                    <li class="menu-list-item">New & Popular</li>
+                    <li class="menu-list-item">My List</li>
+                </ul>
+            </div>
+            <div class="profile-container">
+                <div class="search-box">
+                    <input type="text" placeholder="Search movies...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="profile-content">
+                    <i class="fas fa-bell notification-icon"></i>
+                    <img class="profile-picture" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile">
+                    <div class="profile-text-container">
+                        <i class="fas fa-caret-down"></i>
+                    </div>
+                </div>
+                <div class="toggle">
+                    <i class="fas fa-moon toggle-icon"></i>
+                    <i class="fas fa-sun toggle-icon"></i>
+                    <div class="toggle-ball"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <i class="left-menu-icon fas fa-home active-icon"></i>
+        <i class="left-menu-icon fas fa-film"></i>
+        <i class="left-menu-icon fas fa-tv"></i>
+        <i class="left-menu-icon fas fa-bookmark"></i>
+        <i class="left-menu-icon fas fa-history"></i>
+        <i class="left-menu-icon fas fa-cog"></i>
+    </div>
+
+    <div class="container">
+        <div class="content-container">
+            <div class="featured-content" id="featured-movie">
+                <!-- Featured content will be loaded by JavaScript -->
+            </div>
+
+            <div class="movie-list-container">
+                <h1 class="movie-list-title">Trending Now</h1>
+                <div class="movie-list-wrapper">
+                    <i class="fas fa-chevron-left arrow left-arrow"></i>
+                    <div class="movie-list" id="trending-movies"></div>
+                    <i class="fas fa-chevron-right arrow right-arrow"></i>
+                </div>
+            </div>
+
+            <div class="movie-list-container">
+                <h1 class="movie-list-title">Popular on JanvierMovieX</h1>
+                <div class="movie-list-wrapper">
+                    <i class="fas fa-chevron-left arrow left-arrow"></i>
+                    <div class="movie-list" id="popular-movies"></div>
+                    <i class="fas fa-chevron-right arrow right-arrow"></i>
+                </div>
+            </div>
+
+            <div class="movie-list-container">
+                <h1 class="movie-list-title">Top Rated</h1>
+                <div class="movie-list-wrapper">
+                    <i class="fas fa-chevron-left arrow left-arrow"></i>
+                    <div class="movie-list" id="top-rated-movies"></div>
+                    <i class="fas fa-chevron-right arrow right-arrow"></i>
+                </div>
+            </div>
+
+            <div class="movie-list-container">
+                <h1 class="movie-list-title">Coming Soon</h1>
+                <div class="movie-list-wrapper">
+                    <i class="fas fa-chevron-left arrow left-arrow"></i>
+                    <div class="movie-list" id="upcoming-movies"></div>
+                    <i class="fas fa-chevron-right arrow right-arrow"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Movie Details Modal -->
+    <div class="modal" id="movie-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body" id="modal-body">
+                <!-- Movie details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="social-icons">
+                <i class="fab fa-facebook"></i>
+                <i class="fab fa-twitter"></i>
+                <i class="fab fa-instagram"></i>
+                <i class="fab fa-youtube"></i>
+            </div>
+            <div class="footer-links">
+                <a href="#">Terms of Service</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Help Center</a>
+                <a href="#">Jobs</a>
+                <a href="#">Contact Us</a>
+            </div>
+            <p class="copyright">© 2023 JanvierMovieX. All rights reserved.</p>
+            <p class="attribution">This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
