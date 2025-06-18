@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovieFlix - Browse Movies</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0f0f1a;
+            color: #fff;
+            display: flex;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 80px;
+            height: 100vh;
+            background-color: #1a1a2e;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 30px;
+            position: fixed;
+        }
+
+        .sidebar a {
+            color: #b8b8b8;
+            text-decoration: none;
+            margin: 25px 0;
+            position: relative;
+            text-align: center;
+        }
+
+        .sidebar a:hover, .sidebar a.active-icon {
+            color: #e50914;
+        }
+
+        .sidebar i {
+            font-size: 22px;
+        }
+
+        /* Main Content */
+        .container {
+            margin-left: 80px;
+            padding: 30px;
+            width: calc(100% - 80px);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background-color: #2a2a3c;
+            padding: 8px 15px;
+            border-radius: 20px;
+            width: 300px;
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            padding: 8px;
+            width: 100%;
+            outline: none;
+        }
+
+        .search-box i {
+            color: #b8b8b8;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        /* Subscription Banner */
+        .subscription-banner {
+            background: linear-gradient(135deg, #e50914, #b81d24);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .subscription-text h2 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .subscription-text p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 15px;
+        }
+
+        .subscribe-btn {
+            background-color: #fff;
+            color: #e50914;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .subscribe-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Movie Grid */
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .movie-card {
+            background-color: #1a1a2e;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+        }
+
+        .movie-info {
+            padding: 15px;
+        }
+
+        .movie-title {
+            font-size: 16px;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .movie-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #b8b8b8;
+            font-size: 14px;
+        }
+
+        .like-btn {
+            background: none;
+            border: none;
+            color: #b8b8b8;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+
+        .like-btn.liked {
+            color: #e50914;
+        }
+
+        .category-title {
+            font-size: 22px;
+            margin: 30px 0 20px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .category-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: #e50914;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <a href="index.html"><i class="left-menu-icon fas fa-home"></i></a>
+        <a href="movie.html" class="active-icon"><i class="left-menu-icon fas fa-film"></i></a>
+        <a href="#"><i class="left-menu-icon fas fa-tv"></i></a>
+        <a href="#"><i class="left-menu-icon fas fa-bookmark"></i></a>
+        <a href="#"><i class="left-menu-icon fas fa-history"></i></a>
+        <a href="#"><i class="left-menu-icon fas fa-cog"></i></a>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search movies...">
+            </div>
+            <div class="user-profile">
+                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User">
+                <span>Jessica</span>
+            </div>
+        </header>
+
+        <div class="subscription-banner">
+            <div class="subscription-text">
+                <h2>Unlimited Movies, TV Shows and More</h2>
+                <p>Watch anywhere. Cancel anytime. Ready to watch? Start your membership now.</p>
+            </div>
+            <button class="subscribe-btn">Subscribe Now</button>
+        </div>
+
+        <h1 class="category-title">Popular Movies</h1>
+        <div class="movie-grid">
+            <!-- Movie cards will be generated by JavaScript -->
+        </div>
+
+        <h1 class="category-title">New Releases</h1>
+        <div class="movie-grid new-releases">
+            <!-- Movie cards will be generated by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Sample movie data
+        const movies = [
+            { id: 1, title: "The Dark Knight", year: 2008, likes: 15432, poster: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_.jpg" },
+            { id: 2, title: "Inception", year: 2010, likes: 23456, poster: "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_.jpg" },
+            { id: 3, title: "Interstellar", year: 2014, likes: 18765, poster: "https://m.media-amazon.com/images/M/MV5BZjdkOTU3MDktN2IxOS00OGEyLWFmMjktY2FiMmZkNWIyODZiXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg" },
+            { id: 4, title: "The Shawshank Redemption", year: 1994, likes: 28743, poster: "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg" },
+            { id: 5, title: "Pulp Fiction", year: 1994, likes: 17654, poster: "https://m.media-amazon.com/images/M/MV5BNGNhMDIzZTUtNTBlZi00MTRlLWFjM2ItYzViMjE3YzI5MjljXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_.jpg" },
+            { id: 6, title: "The Godfather", year: 1972, likes: 19876, poster: "https://m.media-amazon.com/images/M/MV5BM2MyNjYxNmUtYTAwNi00MTYxLWJmNWYtYzZlODY3ZTk3OTFlXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_.jpg" },
+            { id: 7, title: "Fight Club", year: 1999, likes: 16543, poster: "https://m.media-amazon.com/images/M/MV5BMmEzNTkxYjQtZTc0MC00YTVjLTg5ZTEtZWMwOWVlYzY0NWIwXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_.jpg" },
+            { id: 8, title: "Forrest Gump", year: 1994, likes: 15432, poster: "https://m.media-amazon.com/images/M/MV5BNWIwODRlZTUtY2U3ZS00Yzg1LWJhNzYtMmZiYmEyNmU1NjMzXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_.jpg" }
+        ];
+
+        const newReleases = [
+            { id: 9, title: "Dune", year: 2021, likes: 3245, poster: "https://m.media-amazon.com/images/M/MV5BN2FjNmEyNWMtYzM0ZS00NjIyLTg5YzYtYThlMGVjNzE1OGViXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_.jpg" },
+            { id: 10, title: "No Time to Die", year: 2021, likes: 2876, poster: "https://m.media-amazon.com/images/M/MV5BYWQ2NzQ1NjktMzNkNS00MGY1LTgwMmMtYTllYTI5YzNmMmE0XkEyXkFqcGdeQXVyMjM4NTM5NDY@._V1_.jpg" },
+            { id: 11, title: "The Batman", year: 2022, likes: 5432, poster: "https://m.media-amazon.com/images/M/MV5BMDdmMTBiNTYtMDIzNi00NGVlLWIzMDYtZTk3MTQ3NGQxZGEwXkEyXkFqcGdeQXVyMzMwOTU5MDk@._V1_.jpg" },
+            { id: 12, title: "Spider-Man: No Way Home", year: 2021, likes: 7654, poster: "https://m.media-amazon.com/images/M/MV5BZWMyYzFjYTYtNTRjYi00OGExLWE2YzgtOGRmYjAxZTU3NzBiXkEyXkFqcGdeQXVyMzQ0MzA0NTM@._V1_.jpg" },
+            { id: 13, title: "Top Gun: Maverick", year: 2022, likes: 4321, poster: "https://m.media-amazon.com/images/M/MV5BZWYzOGEwNTgtNWU3NS00ZTQ0LWJkODUtMmVhMjIwMjA1ZmQwXkEyXkFqcGdeQXVyMjkwOTAyMDU@._V1_.jpg" },
+            { id: 14, title: "Doctor Strange in the Multiverse of Madness", year: 2022, likes: 3876, poster: "https://m.media-amazon.com/images/M/MV5BNWM0ZGJlMzMtZmYwMi00NzI3LTgzMzMtNjMzNjliNDRmZmFlXkEyXkFqcGdeQXVyMTM1MTE1NDMx._V1_.jpg" },
+            { id: 15, title: "Jurassic World Dominion", year: 2022, likes: 2987, poster: "https://m.media-amazon.com/images/M/MV5BOTBjMjA4NmYtN2RjMi00YWZlLTliYTktOTIwMmNkYjYxYmE1XkEyXkFqcGdeQXVyODE5NzE3OTE@._V1_.jpg" },
+            { id: 16, title: "Lightyear", year: 2022, likes: 1876, poster: "https://m.media-amazon.com/images/M/MV5BYTg2Zjk0ZTctM2ZmMi00MDRmLWJjOGYtNWM0YjBmZTBjMjRkXkEyXkFqcGdeQXVyMTM1MTE1NDMx._V1_.jpg" }
+        ];
+
+        // Function to create movie card HTML
+        function createMovieCard(movie) {
+            return `
+                <div class="movie-card" data-id="${movie.id}">
+                    <img src="${movie.poster}" alt="${movie.title}" class="movie-poster">
+                    <div class="movie-info">
+                        <h3 class="movie-title">${movie.title}</h3>
+                        <div class="movie-meta">
+                            <span>${movie.year}</span>
+                            <button class="like-btn" data-id="${movie.id}">
+                                <i class="far fa-heart"></i> ${movie.likes.toLocaleString()}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Function to render movies
+        function renderMovies() {
+            const popularGrid = document.querySelector('.movie-grid');
+            const newReleasesGrid = document.querySelector('.new-releases');
+
+            // Clear existing content
+            popularGrid.innerHTML = '';
+            newReleasesGrid.innerHTML = '';
+
+            // Render popular movies
+            movies.forEach(movie => {
+                popularGrid.innerHTML += createMovieCard(movie);
+            });
+
+            // Render new releases
+            newReleases.forEach(movie => {
+                newReleasesGrid.innerHTML += createMovieCard(movie);
+            });
+
+            // Add event listeners to like buttons
+            document.querySelectorAll('.like-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const movieId = parseInt(this.getAttribute('data-id'));
+                    const movie = [...movies, ...newReleases].find(m => m.id === movieId);
+                    
+                    if (movie) {
+                        if (this.classList.contains('liked')) {
+                            movie.likes--;
+                            this.classList.remove('liked');
+                            this.innerHTML = `<i class="far fa-heart"></i> ${movie.likes.toLocaleString()}`;
+                        } else {
+                            movie.likes++;
+                            this.classList.add('liked');
+                            this.innerHTML = `<i class="fas fa-heart"></i> ${movie.likes.toLocaleString()}`;
+                        }
+                    }
+                });
+            });
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMovies();
+
+            // Subscription button click handler
+            document.querySelector('.subscribe-btn').addEventListener('click', function() {
+                alert('Thank you for your interest in MovieFlix Premium! Redirecting to subscription page...');
+                // In a real app, you would redirect to a payment page
+            });
+
+            // Search functionality
+            document.querySelector('.search-box input').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const allMovies = [...movies, ...newReleases];
+                const filteredMovies = allMovies.filter(movie => 
+                    movie.title.toLowerCase().includes(searchTerm)
+                );
+
+                // You could implement a more sophisticated search results display
+                if (searchTerm.length > 2) {
+                    console.log("Search results:", filteredMovies);
+                    // In a real app, you would update the UI with search results
+                }
+            });
+        });
+    </script>
+</body>
+</html>
