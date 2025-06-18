@@ -299,6 +299,12 @@
             margin-bottom: 15px;
         }
 
+        .momo-logo {
+            width: 24px;
+            height: 24px;
+            margin-right: 15px;
+        }
+
         @media (max-width: 768px) {
             .payment-container {
                 flex-direction: column;
@@ -325,7 +331,7 @@
         <div class="header">
             <h1>Payment Gateway</h1>
             <div class="user-profile">
-                <img src="4O6A4299copy.jpg" alt="User">
+                <img src="406A4299copy.jpg" alt="User">
                 <span>Janvier</span>
             </div>
         </div>
@@ -342,6 +348,14 @@
                         <div class="method-details">
                             <h4>Credit/Debit Card</h4>
                             <p>Pay with Visa, Mastercard, or other cards</p>
+                        </div>
+                    </div>
+                    <div class="payment-method" data-method="momo">
+                        <input type="radio" name="payment-method">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/MoMo_Logo.png/1200px-MoMo_Logo.png" class="momo-logo" alt="MOMO">
+                        <div class="method-details">
+                            <h4>Mobile Money (MOMO)</h4>
+                            <p>Pay with your mobile money account</p>
                         </div>
                     </div>
                     <div class="payment-method" data-method="paypal">
@@ -405,6 +419,27 @@
                     <button type="submit" id="submit-btn" class="btn">Pay $49.99</button>
                 </form>
 
+                <form id="momo-payment-form" class="hidden">
+                    <div class="form-group">
+                        <label for="momo-number">Mobile Money Number</label>
+                        <input type="text" id="momo-number" placeholder="Enter your MOMO number">
+                    </div>
+                    <div class="form-group">
+                        <label for="momo-network">Network Provider</label>
+                        <select id="momo-network" class="form-group input">
+                            <option value="">Select your network</option>
+                            <option value="mtn">MTN</option>
+                            <option value="airtel">Airtel</option>
+                            <option value="orange">Orange</option>
+                            <option value="vodafone">Vodafone</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <p>You will receive a prompt on your phone to confirm the payment.</p>
+                    </div>
+                    <button type="submit" class="btn">Pay with MOMO</button>
+                </form>
+
                 <form id="paypal-payment-form" class="hidden">
                     <p>You will be redirected to PayPal to complete your payment.</p>
                     <button type="submit" class="btn">Proceed to PayPal</button>
@@ -441,6 +476,7 @@
         // DOM Elements
         const paymentMethods = document.querySelectorAll('.payment-method');
         const cardPaymentForm = document.getElementById('card-payment-form');
+        const momoPaymentForm = document.getElementById('momo-payment-form');
         const paypalPaymentForm = document.getElementById('paypal-payment-form');
         const loadingElement = document.getElementById('loading');
         const paymentSuccess = document.getElementById('payment-success');
@@ -454,11 +490,18 @@
                 method.classList.add('active');
                 
                 const selectedMethod = method.getAttribute('data-method');
+                
+                // Hide all forms first
+                cardPaymentForm.classList.add('hidden');
+                momoPaymentForm.classList.add('hidden');
+                paypalPaymentForm.classList.add('hidden');
+                
+                // Show the selected form
                 if (selectedMethod === 'card') {
                     cardPaymentForm.classList.remove('hidden');
-                    paypalPaymentForm.classList.add('hidden');
+                } else if (selectedMethod === 'momo') {
+                    momoPaymentForm.classList.remove('hidden');
                 } else if (selectedMethod === 'paypal') {
-                    cardPaymentForm.classList.add('hidden');
                     paypalPaymentForm.classList.remove('hidden');
                 }
             });
@@ -486,6 +529,11 @@
             e.target.value = e.target.value.replace(/[^0-9]/g, '');
         });
 
+        // Only allow numbers for MOMO number
+        document.getElementById('momo-number').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        });
+
         // Form submission for card payment
         cardPaymentForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -500,7 +548,7 @@
             loadingElement.classList.remove('hidden');
             
             // Simulate API call to payment gateway
-            processPayment()
+            processPayment('card')
                 .then(response => {
                     // Hide loading
                     loadingElement.classList.add('hidden');
@@ -526,14 +574,95 @@
                 });
         });
 
+        // Form submission for MOMO payment
+        momoPaymentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const momoNumber = document.getElementById('momo-number').value;
+            const momoNetwork = document.getElementById('momo-network').value;
+            
+            if (!momoNumber || momoNumber.length < 9) {
+                alert('Please enter a valid mobile money number');
+                return;
+            }
+            
+            if (!momoNetwork) {
+                alert('Please select your network provider');
+                return;
+            }
+            
+            // Show loading state
+            const momoBtn = this.querySelector('button[type="submit"]');
+            momoBtn.disabled = true;
+            loadingElement.classList.remove('hidden');
+            
+            // Simulate API call to MOMO payment gateway
+            processPayment('momo')
+                .then(response => {
+                    // Hide loading
+                    loadingElement.classList.add('hidden');
+                    momoBtn.disabled = false;
+                    
+                    if (response.success) {
+                        // Show success message
+                        document.getElementById('transaction-id').textContent = response.transactionId;
+                        paymentSuccess.classList.remove('hidden');
+                        momoPaymentForm.reset();
+                    } else {
+                        // Show error message
+                        document.getElementById('error-message').textContent = response.message;
+                        paymentError.classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    // Hide loading
+                    loadingElement.classList.add('hidden');
+                    momoBtn.disabled = false;
+                    
+                    // Show error message
+                    document.getElementById('error-message').textContent = 'An unexpected error occurred. Please try again.';
+                    paymentError.classList.remove('hidden');
+                });
+        });
+
         // Form submission for PayPal payment
         paypalPaymentForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            alert('Redirecting to PayPal...');
-            // In a real implementation, this would redirect to PayPal's payment page
+            
+            // Show loading state
+            const paypalBtn = this.querySelector('button[type="submit"]');
+            paypalBtn.disabled = true;
+            loadingElement.classList.remove('hidden');
+            
+            // Simulate API call to PayPal
+            processPayment('paypal')
+                .then(response => {
+                    // Hide loading
+                    loadingElement.classList.add('hidden');
+                    paypalBtn.disabled = false;
+                    
+                    if (response.success) {
+                        // Show success message
+                        document.getElementById('transaction-id').textContent = response.transactionId;
+                        paymentSuccess.classList.remove('hidden');
+                    } else {
+                        // Show error message
+                        document.getElementById('error-message').textContent = response.message;
+                        paymentError.classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    // Hide loading
+                    loadingElement.classList.add('hidden');
+                    paypalBtn.disabled = false;
+                    
+                    // Show error message
+                    document.getElementById('error-message').textContent = 'An unexpected error occurred. Please try again.';
+                    paymentError.classList.remove('hidden');
+                });
         });
 
-        // Form validation
+        // Form validation for card
         function validateCardForm() {
             const cardNumber = document.getElementById('card-number').value.replace(/\s+/g, '');
             const cardName = document.getElementById('card-name').value.trim();
@@ -584,9 +713,9 @@
         }
 
         // Simulated payment processing function
-        function processPayment() {
+        function processPayment(method) {
             // In a real implementation, this would call your backend API
-            // which would then communicate with the payment gateway (Stripe, PayPal, etc.)
+            // which would then communicate with the payment gateway
             
             // For demo purposes, we're simulating an API call with a delay
             return new Promise((resolve, reject) => {
@@ -597,13 +726,15 @@
                     if (isSuccess) {
                         resolve({
                             success: true,
-                            transactionId: 'TXN' + Math.floor(Math.random() * 1000000),
-                            message: 'Payment processed successfully'
+                            transactionId: method.toUpperCase() + '-' + Math.floor(Math.random() * 1000000),
+                            message: `${method} payment processed successfully`
                         });
                     } else {
                         resolve({
                             success: false,
-                            message: 'Payment declined by bank'
+                            message: method === 'momo' ? 
+                                'Mobile Money payment failed. Please check your balance and try again.' : 
+                                'Payment declined. Please check your details and try again.'
                         });
                     }
                 }, 2000);
@@ -613,16 +744,43 @@
         // Retry payment function
         function retryPayment() {
             paymentError.classList.add('hidden');
-            submitBtn.disabled = false;
+            const activeMethod = document.querySelector('.payment-method.active').getAttribute('data-method');
+            
+            if (activeMethod === 'card') {
+                submitBtn.disabled = false;
+            } else if (activeMethod === 'momo') {
+                document.querySelector('#momo-payment-form button[type="submit"]').disabled = false;
+            } else if (activeMethod === 'paypal') {
+                document.querySelector('#paypal-payment-form button[type="submit"]').disabled = false;
+            }
         }
 
         // In a real implementation, you would have proper API keys and backend integration
-        // Here's how you might initialize a payment gateway SDK (example for Stripe)
+        // Here's how you might initialize payment gateways:
         /*
+        // For Stripe (credit cards)
         const stripe = Stripe('YOUR_PUBLISHABLE_KEY');
         
-        // Then you would create a payment intent on your server
-        // and handle the payment confirmation client-side
+        // For MOMO (would typically be handled through a backend API)
+        const momoApiKey = 'YOUR_MOMO_API_KEY';
+        
+        // For PayPal
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: '49.99'
+                        }
+                    }]
+                });
+            },
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    alert('Transaction completed by ' + details.payer.name.given_name);
+                });
+            }
+        }).render('#paypal-button-container');
         */
     </script>
 </body>
