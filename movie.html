@@ -512,6 +512,7 @@
         </div>
     </div>
 
+    
     <script>
         // API Configuration
         const API_KEY = '6fbf59759e4fb40d0bfd5bcd409b157d'; // Replace with your actual TMDb API key
@@ -537,6 +538,7 @@
         let topRatedMovies = [];
         let searchResults = [];
         let currentMovie = null;
+        let likedMovies = JSON.parse(localStorage.getItem('likedMovies')) || {};
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function() {
@@ -558,6 +560,9 @@
                 alert('Thank you for your interest in MovieFlix Premium! Redirecting to subscription page...');
                 // In a real app, you would redirect to a payment page
             });
+
+            // Initialize like buttons for any existing movies
+            updateLikeButtons();
         });
 
         // API Functions
@@ -655,11 +660,15 @@
                     }
                 });
             });
+
+            // Update like buttons after rendering
+            updateLikeButtons();
         }
 
         function createMovieCard(movie) {
             const posterPath = movie.poster_path ? `${IMAGE_BASE_URL}${movie.poster_path}` : PLACEHOLDER_IMAGE;
             const releaseYear = movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A';
+            const isLiked = likedMovies[movie.id] || false;
             
             return `
                 <div class="movie-card" data-id="${movie.id}">
@@ -669,8 +678,8 @@
                         <div class="movie-meta">
                             <span>${releaseYear}</span>
                             <div class="movie-actions">
-                                <button class="action-btn like-btn" data-id="${movie.id}" onclick="event.stopPropagation()">
-                                    <i class="far fa-heart"></i>
+                                <button class="action-btn like-btn ${isLiked ? 'liked' : ''}" data-id="${movie.id}" onclick="event.stopPropagation(); toggleLike(${movie.id})">
+                                    <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i>
                                 </button>
                                 <button class="action-btn download-btn" data-id="${movie.id}" onclick="event.stopPropagation(); showDownloadOptions(${movie.id})">
                                     <i class="fas fa-download"></i>
@@ -688,6 +697,7 @@
             const releaseYear = movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A';
             const runtime = movie.runtime ? `${Math.floor(movie.runtime / 60)}h ${movie.runtime % 60}m` : 'N/A';
             const genres = movie.genres ? movie.genres.map(genre => `<span class="genre">${genre.name}</span>`).join('') : '';
+            const isLiked = likedMovies[movie.id] || false;
             
             modalContent.innerHTML = `
                 <div class="modal-poster">
@@ -701,6 +711,9 @@
                         </div>
                         <div class="modal-year">${releaseYear}</div>
                         <div class="modal-runtime">${runtime}</div>
+                        <button class="action-btn like-btn ${isLiked ? 'liked' : ''}" data-id="${movie.id}" onclick="toggleLike(${movie.id}, true)">
+                            <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> ${isLiked ? 'Liked' : 'Like'}
+                        </button>
                     </div>
                     <div class="modal-genres">
                         ${genres}
@@ -712,13 +725,13 @@
                     <div class="download-options">
                         <h3 class="download-title">Download Options</h3>
                         <div class="download-buttons">
-                            <button class="download-btn" onclick="downloadMovie('${movie.title}', '720p')">
+                            <button class="download-btn" onclick="downloadMovie('${movie.title}', '720p', ${movie.id})">
                                 <i class="fas fa-download"></i> HD (720p)
                             </button>
-                            <button class="download-btn" onclick="downloadMovie('${movie.title}', '1080p')">
+                            <button class="download-btn" onclick="downloadMovie('${movie.title}', '1080p', ${movie.id})">
                                 <i class="fas fa-download"></i> Full HD (1080p)
                             </button>
-                            <button class="download-btn" onclick="downloadMovie('${movie.title}', '4k')">
+                            <button class="download-btn" onclick="downloadMovie('${movie.title}', '4k', ${movie.id})">
                                 <i class="fas fa-download"></i> Ultra HD (4K)
                             </button>
                         </div>
@@ -727,6 +740,44 @@
             `;
             
             movieModal.style.display = 'flex';
+        }
+
+        // Like functionality
+        function toggleLike(movieId, updateModal = false) {
+            // Toggle like status
+            likedMovies[movieId] = !likedMovies[movieId];
+            
+            // Save to localStorage
+            localStorage.setItem('likedMovies', JSON.stringify(likedMovies));
+            
+            // Update all like buttons for this movie
+            updateLikeButtons(movieId);
+            
+            // Update modal if open
+            if (updateModal && currentMovie && currentMovie.id === movieId) {
+                showMovieDetails(currentMovie);
+            }
+        }
+
+        function updateLikeButtons(movieId = null) {
+            if (movieId) {
+                // Update specific movie's like buttons
+                document.querySelectorAll(`.like-btn[data-id="${movieId}"]`).forEach(btn => {
+                    const isLiked = likedMovies[movieId] || false;
+                    btn.classList.toggle('liked', isLiked);
+                    const icon = btn.querySelector('i');
+                    icon.className = isLiked ? 'fas fa-heart' : 'far fa-heart';
+                });
+            } else {
+                // Update all like buttons
+                document.querySelectorAll('.like-btn').forEach(btn => {
+                    const id = parseInt(btn.getAttribute('data-id'));
+                    const isLiked = likedMovies[id] || false;
+                    btn.classList.toggle('liked', isLiked);
+                    const icon = btn.querySelector('i');
+                    icon.className = isLiked ? 'fas fa-heart' : 'far fa-heart';
+                });
+            }
         }
 
         // Utility Functions
@@ -741,16 +792,44 @@
         }
 
         // Download Functions
-        function downloadMovie(title, quality) {
-            // In a real app, this would initiate a download
-            // For demo purposes, we'll just show an alert
-            alert(`Downloading "${title}" in ${quality} quality. This would initiate a real download in a production app.`);
+        function downloadMovie(title, quality, movieId) {
+            // Create a timestamp for the download
+            const timestamp = new Date().toISOString();
             
-            // Simulate download (for demo only)
-            console.log(`Starting download: ${title} (${quality})`);
+            // In a real app, this would initiate a download
+            // For demo purposes, we'll create a blob and download it
+            const content = `This is a mock download file for "${title}" in ${quality} quality.\n\n` +
+                          `Movie ID: ${movieId}\n` +
+                          `Downloaded at: ${timestamp}`;
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            // Create a temporary anchor element to trigger download
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${quality}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            
+            // Clean up
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
             
             // Close the modal after download starts
             movieModal.style.display = 'none';
+            
+            // Add to download history (in a real app, this would be saved to a database)
+            const downloadHistory = JSON.parse(localStorage.getItem('downloadHistory')) || [];
+            downloadHistory.push({
+                movieId,
+                title,
+                quality,
+                date: timestamp
+            });
+            localStorage.setItem('downloadHistory', JSON.stringify(downloadHistory));
         }
 
         function showDownloadOptions(movieId) {
@@ -766,13 +845,13 @@
                         <div class="download-options">
                             <h3 class="download-title">Download Options</h3>
                             <div class="download-buttons">
-                                <button class="download-btn" onclick="downloadMovie('${movie.title}', '720p')">
+                                <button class="download-btn" onclick="downloadMovie('${movie.title}', '720p', ${movie.id})">
                                     <i class="fas fa-download"></i> HD (720p)
                                 </button>
-                                <button class="download-btn" onclick="downloadMovie('${movie.title}', '1080p')">
+                                <button class="download-btn" onclick="downloadMovie('${movie.title}', '1080p', ${movie.id})">
                                     <i class="fas fa-download"></i> Full HD (1080p)
                                 </button>
-                                <button class="download-btn" onclick="downloadMovie('${movie.title}', '4k')">
+                                <button class="download-btn" onclick="downloadMovie('${movie.title}', '4k', ${movie.id})">
                                     <i class="fas fa-download"></i> Ultra HD (4K)
                                 </button>
                             </div>
@@ -786,6 +865,7 @@
         // Make functions available globally for HTML onclick attributes
         window.downloadMovie = downloadMovie;
         window.showDownloadOptions = showDownloadOptions;
+        window.toggleLike = toggleLike;
     </script>
 </body>
 </html>
